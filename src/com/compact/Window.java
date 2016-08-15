@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -53,14 +52,13 @@ public class Window extends JFrame implements SerialPortEventListener {
 	private static JPanel contentPane;
 	static SerialPort serialPort;
 	private static BufferedReader input;
-	@SuppressWarnings("unused")
 	private static OutputStream output;
 	private static final int TIME_OUT = 2000;
 	private static final int DATA_RATE = 9600;
 	static JButton button0;
-	static JButton button1;
-	static JButton button2;
-	static JButton button3;
+	static JButton buttonRead;
+	static JButton buttonPort;
+	static JButton buttonExtract;
 	static JTextPane txtpnA;
 	static JTextPane txtpnC;
 	static JTextField txtpnB;
@@ -76,9 +74,8 @@ public class Window extends JFrame implements SerialPortEventListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		setTitle("Utility");
+		setTitle("RXTX Sync");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setSize(width, height);
 		setLocationRelativeTo(null);
 		contentPane = new JPanel();
@@ -130,7 +127,8 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 		txtpnD = new JTextField();
 		txtpnD.setEditable(false);
-		txtpnD.setText(" " + txtport);
+		txtpnD.setHorizontalAlignment(JTextField.CENTER);
+		txtpnD.setText(String.valueOf(txtport));
 		txtpnD.setBounds(460, 372, 21, 24);
 		txtpnD.setOpaque(false);
 		contentPane.add(txtpnD);
@@ -140,10 +138,10 @@ public class Window extends JFrame implements SerialPortEventListener {
 		button0.setBounds(20, 20, 0, 0);
 		contentPane.add(button0);
 
-		button1 = new JButton();
-		button1.setText("Dátum szinkronizálása");
-		button1.setBounds(20, 20, 150, 30);
-		button1.addMouseListener(new MouseListener() {
+		buttonRead = new JButton();
+		buttonRead.setText("Dátum szinkronizálása");
+		buttonRead.setBounds(20, 20, 150, 30);
+		buttonRead.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				try {
@@ -174,13 +172,13 @@ public class Window extends JFrame implements SerialPortEventListener {
 				// TODO Auto-generated method stub
 			}
 		});
-		button1.setVisible(true);
-		contentPane.add(button1);
+		buttonRead.setVisible(true);
+		contentPane.add(buttonRead);
 
-		button2 = new JButton();
-		button2.setText("Új port");
-		button2.setBounds(493, 372, 73, 25);
-		button2.addMouseListener(new MouseListener() {
+		buttonPort = new JButton();
+		buttonPort.setText("Új port");
+		buttonPort.setBounds(493, 372, 73, 25);
+		buttonPort.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				new Port();
@@ -206,13 +204,13 @@ public class Window extends JFrame implements SerialPortEventListener {
 				// TODO Auto-generated method stub
 			}
 		});
-		button2.setVisible(true);
-		contentPane.add(button2);
+		buttonPort.setVisible(true);
+		contentPane.add(buttonPort);
 
-		button3 = new JButton();
-		button3.setText("Olvasás");
-		button3.setBounds(20, 70, 150, 30);
-		button3.addMouseListener(new MouseListener() {
+		buttonExtract = new JButton();
+		buttonExtract.setText("Olvasás");
+		buttonExtract.setBounds(20, 70, 150, 30);
+		buttonExtract.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				try {
@@ -243,8 +241,8 @@ public class Window extends JFrame implements SerialPortEventListener {
 				// TODO Auto-generated method stub
 			}
 		});
-		button3.setVisible(true);
-		contentPane.add(button3);
+		buttonExtract.setVisible(true);
+		contentPane.add(buttonExtract);
 
 		JLabel label = new JLabel(icon);
 		label.setBounds(0, -35, 600, 450);
@@ -270,6 +268,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 	public void Read() throws IOException {
 		System.out.println("******Start Write******");
+		txtpnB.setForeground(Color.BLACK);
 		txtpnB.setText(" Folyamatban");
 		CommPortIdentifier portId = null;
 		@SuppressWarnings("rawtypes")
@@ -371,15 +370,12 @@ public class Window extends JFrame implements SerialPortEventListener {
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
 					SerialPort.PARITY_NONE);
 
-			// input = new BufferedReader(new
-			// InputStreamReader(serialPort.getInputStream()));
 			output = serialPort.getOutputStream();
 
 			serialPort.addEventListener(this);
 			serialPort.notifyOnDataAvailable(true);
 
 			try {
-				// int sent = 99;
 				output.write(string.getBytes());
 				output.flush();
 				serialPort.close();

@@ -2,6 +2,8 @@ package com.compact;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
@@ -17,7 +19,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,7 +26,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
@@ -48,7 +48,6 @@ public class Window extends JFrame implements SerialPortEventListener {
 	static boolean errFile = false;
 	static boolean errData = false;
 	static boolean errCom = false;
-	static boolean errArrays = false;
 	static boolean errImg = false;
 	private static final long serialVersionUID = 1L;
 	private static JPanel contentPane;
@@ -218,8 +217,6 @@ public class Window extends JFrame implements SerialPortEventListener {
 			public void mouseClicked(MouseEvent arg0) {
 				try {
 					Extract();
-					//System.out.println("waited");
-					//serialPort.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -339,6 +336,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 	public void Extract() throws IOException {
 		System.out.println("******Start Read******");
+		txtpnB.setForeground(Color.BLACK);
 		txtpnB.setText(" Folyamatban");
 		CommPortIdentifier portId = null;
 		@SuppressWarnings("rawtypes")
@@ -434,23 +432,44 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 			serialPort.addEventListener(this);
 			serialPort.notifyOnDataAvailable(true);
+			ActionListener taskPerformer = new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					txtpnB.setForeground(Color.BLUE);
+					txtpnB.setText(" Adatok kiolvasása sikeres!");
+					System.out.println("*******End Read*******");
+					serialPort.close();
+					serialPort.removeEventListener();
+				}
+			};
+			javax.swing.Timer t = new javax.swing.Timer(10000, taskPerformer);
+			t.setRepeats(false);
+			t.start();
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}
 	}
 
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
-		while (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE && inputLine == null) {
+		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 			try {
 				inputLine = null;
 				if (input.ready()) {
 					inputLine = input.readLine();
 					System.out.println(inputLine);
-					close();
+					BufferedWriter output = null;
+					try {
+						output = new BufferedWriter(new FileWriter("log.txt", true));
+						output.write(inputLine + System.lineSeparator());
+					} catch (IOException e) {
+						e.printStackTrace();
+					} finally {
+						if (output != null) {
+							output.close();
+						}
+					}
 				}
 			} catch (Exception e) {
 				System.err.println(e.toString());
-				errArrays = true;
 			}
 		}
 	}

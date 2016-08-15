@@ -1,1 +1,0 @@
-A program futtatásához 64-bites Java szükséges!

@@ -38,7 +38,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 	static int port = 3;
 	static int txtport;
 	static int width = 600;
-	static int height = 450;
+	static int height = 300;
 	static int currentPort;
 	String read;
 	BufferedReader reader;
@@ -56,9 +56,11 @@ public class Window extends JFrame implements SerialPortEventListener {
 	private static final int TIME_OUT = 2000;
 	private static final int DATA_RATE = 9600;
 	static JButton button0;
+	static JButton button1;
 	static JButton buttonRead;
 	static JButton buttonPort;
 	static JButton buttonExtract;
+	static JButton buttonErase;
 	static JTextPane txtpnA;
 	static JTextPane txtpnC;
 	static JTextField txtpnB;
@@ -89,7 +91,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 		txtpnA.setEditable(false);
 		txtpnA.setFont(f);
 		txtpnA.setText("Állapot:");
-		txtpnA.setBounds(20, 370, 80, 30);
+		txtpnA.setBounds(20, 220, 80, 30);
 		txtpnA.setOpaque(false);
 		contentPane.add(txtpnA);
 
@@ -97,7 +99,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 		txtpnC.setEditable(false);
 		txtpnC.setFont(f);
 		txtpnC.setText("Port:");
-		txtpnC.setBounds(420, 370, 80, 30);
+		txtpnC.setBounds(416, 220, 80, 30);
 		txtpnC.setOpaque(false);
 		contentPane.add(txtpnC);
 
@@ -105,7 +107,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 		txtpnB.setEditable(false);
 		txtpnB.setBackground(Color.WHITE);
 		txtpnB.setText(" Várakozás utasításra...");
-		txtpnB.setBounds(80, 372, 200, 24);
+		txtpnB.setBounds(80, 222, 200, 24);
 		txtpnB.setOpaque(false);
 		contentPane.add(txtpnB);
 
@@ -129,7 +131,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 		txtpnD.setEditable(false);
 		txtpnD.setHorizontalAlignment(JTextField.CENTER);
 		txtpnD.setText(String.valueOf(txtport));
-		txtpnD.setBounds(460, 372, 21, 24);
+		txtpnD.setBounds(458, 222, 25, 24);
 		txtpnD.setOpaque(false);
 		contentPane.add(txtpnD);
 
@@ -177,7 +179,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 		buttonPort = new JButton();
 		buttonPort.setText("Új port");
-		buttonPort.setBounds(493, 372, 73, 25);
+		buttonPort.setBounds(493, 222, 73, 24);
 		buttonPort.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -244,8 +246,50 @@ public class Window extends JFrame implements SerialPortEventListener {
 		buttonExtract.setVisible(true);
 		contentPane.add(buttonExtract);
 
+		button1 = new JButton();
+		button1.setText("Hidden");
+		button1.setBounds(20, 100, 0, 0);
+		contentPane.add(button1);
+		
+		buttonErase = new JButton();
+		buttonErase.setText("Memória törlése");
+		buttonErase.setBounds(20, 120, 150, 30);
+		buttonErase.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				try {
+					Erase();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+		});
+		buttonErase.setVisible(true);
+		contentPane.add(buttonErase);
+
 		JLabel label = new JLabel(icon);
-		label.setBounds(0, -35, 600, 450);
+		label.setBounds(0, 0, 600, 300);
 		contentPane.add(label);
 	}
 
@@ -300,12 +344,8 @@ public class Window extends JFrame implements SerialPortEventListener {
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
 					SerialPort.PARITY_NONE);
 
-			// input = new BufferedReader(new
-			// InputStreamReader(serialPort.getInputStream()));
 			output = serialPort.getOutputStream();
 
-			// serialPort.addEventListener(this);
-			// serialPort.notifyOnDataAvailable(true);
 			writeData();
 		} catch (Exception e) {
 			System.err.println(e.toString());
@@ -321,12 +361,65 @@ public class Window extends JFrame implements SerialPortEventListener {
 			output.write(datefinalfinal.getBytes());
 			output.flush();
 			serialPort.close();
-			// contentPane.removeAll();
-			// contentPane.repaint();
-			// txtpnB.setText("Done!");
 			txtpnB.setForeground(Color.BLUE);
 			txtpnB.setText(" Dátum szinkronizálása sikeres!");
 			System.out.println("*******End Write*******");
+			return;
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+	}
+	
+	public void Erase() throws IOException {
+		System.out.println("******Start Erase******");
+		txtpnB.setForeground(Color.BLACK);
+		txtpnB.setText(" Folyamatban");
+		CommPortIdentifier portId = null;
+		@SuppressWarnings("rawtypes")
+		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
+		if (txtport == 0) {
+			currentPort = port;
+		} else {
+			currentPort = txtport;
+		}
+		final String PORT_NAMES[] = { "COM" + currentPort };
+		while (portEnum.hasMoreElements()) {
+			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
+			for (String portName : PORT_NAMES) {
+				if (currPortId.getName().equals(portName)) {
+					portId = currPortId;
+					break;
+				}
+			}
+		}
+		if (portId == null) {
+			System.out.println("Could not find COM port.");
+			txtpnB.setForeground(Color.RED);
+			txtpnB.setText(" A megadott port nem található!");
+			errCom = true;
+			return;
+		}
+		try {
+			serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
+			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+					SerialPort.PARITY_NONE);
+
+			output = serialPort.getOutputStream();
+
+			writeData2();
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+	}
+
+	public static void writeData2() {
+		try {
+			output.write(11);
+			output.flush();
+			serialPort.close();
+			txtpnB.setForeground(Color.BLUE);
+			txtpnB.setText(" Memória törlése sikeres!");
+			System.out.println("*******End Erase*******");
 			return;
 		} catch (Exception e) {
 			System.err.println(e.toString());
@@ -425,6 +518,8 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 			input = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
 			output = serialPort.getOutputStream();
+			
+			buttonExtract.setEnabled(false);
 
 			serialPort.addEventListener(this);
 			serialPort.notifyOnDataAvailable(true);
@@ -433,6 +528,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 					txtpnB.setForeground(Color.BLUE);
 					txtpnB.setText(" Adatok kiolvasása sikeres!");
 					System.out.println("*******End Read*******");
+					buttonExtract.setEnabled(true);
 					serialPort.close();
 					serialPort.removeEventListener();
 				}

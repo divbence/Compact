@@ -16,7 +16,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import javax.swing.ImageIcon;
@@ -68,6 +67,8 @@ public class Window extends JFrame implements SerialPortEventListener {
 	static JTextField txtpnD;
 	static Date datefinal;
 	static String datefinalfinal;
+	static Date datefinal2;
+	static String datefinalfinal2;
 	String string = "99";
 	ImageIcon icon;
 
@@ -77,7 +78,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		setTitle("RXTX Sync");
+		setTitle("Táska Rendszer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(width, height);
 		setLocationRelativeTo(null);
@@ -419,7 +420,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 	public static void writeData2() {
 		try {
-			output.write(11);
+			output.write(95);
 			output.flush();
 			serialPort.close();
 			txtpnB.setForeground(Color.BLUE);
@@ -556,59 +557,76 @@ public class Window extends JFrame implements SerialPortEventListener {
 				inputLine = null;
 				if (input.ready()) {
 					inputLine = input.readLine();
-					// System.out.println(inputLine);
 					BufferedWriter output = null;
-					String x10;
-					String x11;
-					String x12;
-					String x13;
-					String x14;
+
 					pieces = inputLine.split("\\s");
-					int p10 = Integer.valueOf(pieces[10]);
-					int p11 = Integer.valueOf(pieces[11]);
-					int p12 = Integer.valueOf(pieces[12]);
-					int p13 = Integer.valueOf(pieces[13]);
-					int p14 = Integer.valueOf(pieces[14]);
-					if (p10 == 0) {
-						x10 = "00";
-					} else {
-						x10 = String.format("%02d", p10);
-					}
-					if (p11 == 0) {
-						x11 = "00";
-					} else {
-						x11 = String.format("%02d", p11);
-					}
-					if (p12 == 0) {
-						x12 = "00";
-					} else {
-						x12 = String.format("%02d", p12);
-					}
-					if (p12 == 0) {
-						x12 = "00";
-					} else {
-						x12 = String.format("%02d", p12);
-					}
-					if (p13 == 0) {
-						x13 = "00";
-					} else {
-						x13 = String.format("%02d", p13);
-					}
-					if (p14 == 0) {
-						x14 = "00";
-					} else {
-						x14 = String.format("%02d", p14);
-					}
-					String filenamedate = x10 + x11 + " " + x12 + x13 + x14;
+
+					DateFormat dateFormat2 = new SimpleDateFormat("MMdd HHmmss");
+					datefinal2 = new Date();
+					datefinalfinal2 = dateFormat2.format(datefinal2);
+
 					String filenamenumber = pieces[4] + ". táska ";
-					String filename = filenamenumber + filenamedate;
+					String filename = filenamenumber + datefinalfinal2;
 
 					try {
-						output = new BufferedWriter(new FileWriter(filename + ".txt", true));
+						String myDocumentPath = System.getProperty("user.home") + "/" + "Documents";
+						output = new BufferedWriter(new FileWriter(myDocumentPath + "/" + filename + ".txt", true));
 						int chunk = 10;
 						for (int i = 10; i < pieces.length; i += chunk) {
-							output.write(
-									Arrays.toString(Arrays.copyOfRange(pieces, i, Math.min(pieces.length, i + chunk))).replace("[", "").replace("]", "").replace(",", ""));
+							String status = null;
+							if (pieces[i+5].equals("1")) {
+								status = "Hatástalanítás";
+							} else if (pieces[i+5].equals("2")) {
+								status = "Táska nyitva";
+							} else if (pieces[i+5].equals("3")) {
+								status = "Zárás";
+							} else if (pieces[i+5].equals("4")) {
+								status = "Élesítés";
+							} else if (pieces[i+5].equals("5")) {
+								status = "Riasztás";
+							} else if (pieces[i+5].equals("6")) {
+								status = "Nyitás";
+							} else if (pieces[i+5].equals("7")) {
+								status = "Hibás kártya";
+							} else if (pieces[i+5].equals("8")) {
+								status = "Bekapcsolás";
+							} else if (pieces[i+5].equals("9")) {
+								status = "Kikapcsolás";
+							} else {
+								status = "null";
+							}
+							String p0 = null;
+							String p1 = null;
+							String p2 = null;
+							String p3 = null;
+							String p4 = null;
+							if (pieces[i].equals("0")) {
+								p0 = "00";
+							} else {
+								p0 = String.format("%02d", Integer.valueOf(pieces[i]));
+							}
+							if (pieces[i+1].equals("0")) {
+								p1 = "00";
+							} else {
+								p1 = String.format("%02d", Integer.valueOf(pieces[i+1]));
+							}
+							if (pieces[i+2].equals("0")) {
+								p2 = "00";
+							} else {
+								p2 = String.format("%02d", Integer.valueOf(pieces[i+2]));
+							}
+							if (pieces[i+3].equals("0")) {
+								p3 = "00";
+							} else {
+								p3 = String.format("%02d", Integer.valueOf(pieces[i+3]));
+							}
+							if (pieces[i+4].equals("0")) {
+								p4 = "00";
+							} else {
+								p4 = String.format("%02d", Integer.valueOf(pieces[i+4]));
+							}
+							String degree  = "\u00b0";
+							output.write(String.format(p0 + "-" + p1 + "  " + p2 + ":" + p3 + ":" + p4 + "  " + status + "\t" + "   " + pieces[i+6] + "  " + " Akku " + pieces[i+7] + "%%" + "\t" + " Hõfok " + pieces[i+8] + degree.replace("[", "").replace("]", "").replace(",", "")));
 							output.write(System.lineSeparator());
 						}
 					} catch (IOException e) {

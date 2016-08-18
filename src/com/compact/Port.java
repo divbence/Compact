@@ -1,12 +1,10 @@
 package com.compact;
 
-import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -38,7 +36,6 @@ public class Port extends JFrame {
 		}
 		setTitle("Port megadása");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		// setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setSize(width, height);
 		setLocationRelativeTo(null);
 		contentPane = new JPanel();

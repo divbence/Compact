@@ -564,11 +564,11 @@ public class Window extends JFrame implements SerialPortEventListener {
 					String x13;
 					String x14;
 					pieces = inputLine.split("\\s");
-					int p10 = Integer.valueOf(pieces[5]);
-					int p11 = Integer.valueOf(pieces[5]);
-					int p12 = Integer.valueOf(pieces[5]);
-					int p13 = Integer.valueOf(pieces[5]);
-					int p14 = Integer.valueOf(pieces[5]);
+					int p10 = Integer.valueOf(pieces[10]);
+					int p11 = Integer.valueOf(pieces[11]);
+					int p12 = Integer.valueOf(pieces[12]);
+					int p13 = Integer.valueOf(pieces[13]);
+					int p14 = Integer.valueOf(pieces[14]);
 					if (p10 == 0) {
 						x10 = "00";
 					} else {

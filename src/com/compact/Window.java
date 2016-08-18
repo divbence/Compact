@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import javax.swing.ImageIcon;
@@ -129,10 +130,10 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 		txtpnD = new JTextField();
 		txtpnD.setEditable(false);
+		txtpnD.setBackground(Color.WHITE);
 		txtpnD.setHorizontalAlignment(JTextField.CENTER);
 		txtpnD.setText(String.valueOf(txtport));
 		txtpnD.setBounds(458, 222, 25, 24);
-		txtpnD.setOpaque(false);
 		contentPane.add(txtpnD);
 
 		button0 = new JButton();
@@ -250,7 +251,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 		button1.setText("Hidden");
 		button1.setBounds(20, 100, 0, 0);
 		contentPane.add(button1);
-		
+
 		buttonErase = new JButton();
 		buttonErase.setText("Memória törlése");
 		buttonErase.setBounds(20, 120, 150, 30);
@@ -335,11 +336,13 @@ public class Window extends JFrame implements SerialPortEventListener {
 		if (portId == null) {
 			System.out.println("Could not find COM port.");
 			txtpnB.setForeground(Color.RED);
+			txtpnD.setBackground(Color.RED);
 			txtpnB.setText(" A megadott port nem található!");
 			errCom = true;
 			return;
 		}
 		try {
+			txtpnD.setBackground(Color.GREEN);
 			serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
 					SerialPort.PARITY_NONE);
@@ -369,7 +372,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 			System.err.println(e.toString());
 		}
 	}
-	
+
 	public void Erase() throws IOException {
 		System.out.println("******Start Erase******");
 		txtpnB.setForeground(Color.BLACK);
@@ -395,11 +398,13 @@ public class Window extends JFrame implements SerialPortEventListener {
 		if (portId == null) {
 			System.out.println("Could not find COM port.");
 			txtpnB.setForeground(Color.RED);
+			txtpnD.setBackground(Color.RED);
 			txtpnB.setText(" A megadott port nem található!");
 			errCom = true;
 			return;
 		}
 		try {
+			txtpnD.setBackground(Color.GREEN);
 			serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
 					SerialPort.PARITY_NONE);
@@ -453,12 +458,14 @@ public class Window extends JFrame implements SerialPortEventListener {
 		if (portId == null) {
 			System.out.println("Could not find COM port.");
 			txtpnB.setForeground(Color.RED);
+			txtpnD.setBackground(Color.RED);
 			txtpnB.setText(" A megadott port nem található!");
 			errCom = true;
 			return;
 		}
 
 		try {
+			txtpnD.setBackground(Color.GREEN);
 			serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
 					SerialPort.PARITY_NONE);
@@ -506,19 +513,21 @@ public class Window extends JFrame implements SerialPortEventListener {
 		if (portId == null) {
 			System.out.println("Could not find COM port.");
 			txtpnB.setForeground(Color.RED);
+			txtpnD.setBackground(Color.RED);
 			txtpnB.setText(" A megadott port nem található!");
 			errCom = true;
 			return;
 		}
 
 		try {
+			txtpnD.setBackground(Color.GREEN);
 			serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
 					SerialPort.PARITY_NONE);
 
 			input = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
 			output = serialPort.getOutputStream();
-			
+
 			buttonExtract.setEnabled(false);
 
 			serialPort.addEventListener(this);
@@ -547,11 +556,61 @@ public class Window extends JFrame implements SerialPortEventListener {
 				inputLine = null;
 				if (input.ready()) {
 					inputLine = input.readLine();
-					System.out.println(inputLine);
+					// System.out.println(inputLine);
 					BufferedWriter output = null;
+					String x10;
+					String x11;
+					String x12;
+					String x13;
+					String x14;
+					pieces = inputLine.split("\\s");
+					int p10 = Integer.valueOf(pieces[5]);
+					int p11 = Integer.valueOf(pieces[5]);
+					int p12 = Integer.valueOf(pieces[5]);
+					int p13 = Integer.valueOf(pieces[5]);
+					int p14 = Integer.valueOf(pieces[5]);
+					if (p10 == 0) {
+						x10 = "00";
+					} else {
+						x10 = String.format("%02d", p10);
+					}
+					if (p11 == 0) {
+						x11 = "00";
+					} else {
+						x11 = String.format("%02d", p11);
+					}
+					if (p12 == 0) {
+						x12 = "00";
+					} else {
+						x12 = String.format("%02d", p12);
+					}
+					if (p12 == 0) {
+						x12 = "00";
+					} else {
+						x12 = String.format("%02d", p12);
+					}
+					if (p13 == 0) {
+						x13 = "00";
+					} else {
+						x13 = String.format("%02d", p13);
+					}
+					if (p14 == 0) {
+						x14 = "00";
+					} else {
+						x14 = String.format("%02d", p14);
+					}
+					String filenamedate = x10 + x11 + " " + x12 + x13 + x14;
+					String filenamenumber = pieces[4] + ". táska ";
+					String filename = filenamenumber + filenamedate;
+
 					try {
-						output = new BufferedWriter(new FileWriter("log.txt", true));
-						output.write(inputLine + System.lineSeparator());
+						output = new BufferedWriter(new FileWriter(filename + ".txt", true));
+						int chunk = 10;
+						for (int i = 10; i < pieces.length; i += chunk) {
+							output.write(
+									Arrays.toString(Arrays.copyOfRange(pieces, i, Math.min(pieces.length, i + chunk))).replace("[", "").replace("]", "").replace(",", ""));
+							output.write(System.lineSeparator());
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					} finally {

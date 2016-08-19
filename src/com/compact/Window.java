@@ -70,6 +70,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 	static Date datefinal2;
 	static String datefinalfinal2;
 	String string = "99";
+	static String del = "95";
 	ImageIcon icon;
 
 	public Window() throws IOException {
@@ -420,7 +421,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 
 	public static void writeData2() {
 		try {
-			output.write(95);
+			output.write(del.getBytes());
 			output.flush();
 			serialPort.close();
 			txtpnB.setForeground(Color.BLUE);
@@ -572,20 +573,26 @@ public class Window extends JFrame implements SerialPortEventListener {
 						String myDocumentPath = System.getProperty("user.home") + "/" + "Documents";
 						output = new BufferedWriter(new FileWriter(myDocumentPath + "/" + filename + ".txt", true));
 						int chunk = 10;
+						String nulltab = null;
 						for (int i = 10; i < pieces.length; i += chunk) {
+							if (pieces[i].equals("255")) {
+								nulltab = "";
+							} else {
+								nulltab = "\t";
+							}
 							String status = null;
 							if (pieces[i+5].equals("1")) {
 								status = "Hatástalanítás";
 							} else if (pieces[i+5].equals("2")) {
 								status = "Táska nyitva";
 							} else if (pieces[i+5].equals("3")) {
-								status = "Zárás";
+								status = "Zárás" + "\t";
 							} else if (pieces[i+5].equals("4")) {
 								status = "Élesítés";
 							} else if (pieces[i+5].equals("5")) {
 								status = "Riasztás";
 							} else if (pieces[i+5].equals("6")) {
-								status = "Nyitás";
+								status = "Nyitás" + "\t";
 							} else if (pieces[i+5].equals("7")) {
 								status = "Hibás kártya";
 							} else if (pieces[i+5].equals("8")) {
@@ -593,7 +600,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 							} else if (pieces[i+5].equals("9")) {
 								status = "Kikapcsolás";
 							} else {
-								status = "null";
+								status = "null" + nulltab;
 							}
 							String p0 = null;
 							String p1 = null;
@@ -626,7 +633,7 @@ public class Window extends JFrame implements SerialPortEventListener {
 								p4 = String.format("%02d", Integer.valueOf(pieces[i+4]));
 							}
 							String degree  = "\u00b0";
-							output.write(String.format(p0 + "-" + p1 + "  " + p2 + ":" + p3 + ":" + p4 + "  " + status + "\t" + "   " + pieces[i+6] + "  " + " Akku " + pieces[i+7] + "%%" + "\t" + " Hõfok " + pieces[i+8] + degree.replace("[", "").replace("]", "").replace(",", "")));
+							output.write(String.format(p0 + "-" + p1 + "  " + p2 + ":" + p3 + ":" + p4 + "  " + status + "\t" + "   " + pieces[i+6] + "\t" + " Akku " + pieces[i+7] + "%%" + "\t" + " Hõfok " + pieces[i+8] + degree.replace("[", "").replace("]", "").replace(",", "")));
 							output.write(System.lineSeparator());
 						}
 					} catch (IOException e) {
